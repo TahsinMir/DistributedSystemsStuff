@@ -3,6 +3,7 @@ import java.io.Serializable;
 public class Ball extends Object implements Serializable
 {
 	String color;
+	String message;
 
 	public Ball(String color)
 	{
@@ -12,5 +13,13 @@ public class Ball extends Object implements Serializable
 	public String GetColor()
 	{
 		return color;
+	}
+	public void SetMessage(String message)
+	{
+		this.message = message;
+	}
+	public String GetMessage()
+	{
+		return message;
 	}
 }
