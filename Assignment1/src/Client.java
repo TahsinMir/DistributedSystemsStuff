@@ -26,14 +26,17 @@ public class Client extends Thread
 		this.port = port;
 		this.host = host;
 		
-		try {
+		try
+		{
 			s = new Socket(this.host, this.port);
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}
+		catch (UnknownHostException e)
+		{
+			System.out.println("Unknown Host Exception: " + e);
+		}
+		catch (IOException e)
+		{
+			System.out.println("IO Exception: " + e);
 		}
 	}
 	
@@ -41,7 +44,7 @@ public class Client extends Thread
 	{
 		try
 		{
-			//sample coin toss
+			//Coin toss
 			boolean isDecided = false;
 			random = new Random();
 			while(!isDecided)
@@ -49,7 +52,7 @@ public class Client extends Thread
 				in = s.getInputStream();
 				out = s.getOutputStream();
 				
-				//client goes first
+				//By design client goes first for the coin toss part
 				clientToss = Math.abs(random.nextInt()) % 2;
 				ObjectOutputStream oout = new ObjectOutputStream(out);
 				oout.writeObject(clientToss);
@@ -70,18 +73,18 @@ public class Client extends Thread
 				else if(clientToss > serverToss)
 				{
 					message = "Ping";
-					ball = new Ball("Red");
-					ball.SetMessage(message);
+					ball = new Ball(message);
 					isDecided = true;
 				}
 				else
 				{
-					System.out.println("There is a tie, toss again!");
+					System.out.println("There is a tie, tossing again!");
 					sleep(1000);
 				}
 			}
 			while(true)
 			{
+				//If client won the toss, client makes the first move
 				if(message == "Ping")
 				{
 					in = s.getInputStream();
@@ -100,6 +103,7 @@ public class Client extends Thread
 					System.out.println("Client received: " + rec.GetMessage());
 					ball = rec;
 				}
+				//If client lost the toss, client waits for the server to make the first move
 				else if(message == "Pong")
 				{
 					in = s.getInputStream();
@@ -121,16 +125,16 @@ public class Client extends Thread
 				
 			}
 		}
-		catch (IOException e1)
+		catch (IOException e)
 		{
-			System.out.println(e1);
+			System.out.println("IO Exception occured: " + e);
 		}
-		catch (ClassNotFoundException e2)
+		catch (ClassNotFoundException e)
 		{
-			System.out.println(e2);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Class Not Found Exception occured: " + e);
+		} catch (InterruptedException e)
+		{
+			System.out.println("Interrupted Exception occured: " + e);
 		}
 	}
 

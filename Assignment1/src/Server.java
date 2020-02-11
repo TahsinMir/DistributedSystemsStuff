@@ -21,14 +21,16 @@ public class Server
 		try
 		{
 			ss = new ServerSocket(port);
-			System.out.println("TimeServer up and running on port " + port + " " + InetAddress.getLocalHost());
+			System.out.println("Server is up and running on port " + port + " " + InetAddress.getLocalHost());
+			System.out.println("Server is waiting for clients to connect");
 		}
-		catch (UnknownHostException e) {
-			System.err.println(e);
+		catch (UnknownHostException e)
+		{
+			System.err.println("Unknown Host Exception occured: " + e);
 		}
 		catch (IOException e)
 		{
-			System.err.println(e);
+			System.err.println("IO Exception occured: " + e);
 		}
 	}
 	public void RunServer()
@@ -64,7 +66,6 @@ class ServerConnection extends Thread {
 
 	ServerConnection(Socket client, int clientNo) throws SocketException 
 	{
-		ball = new Ball("Red");
 		this.newClient = client;
 		this.clientNo = clientNo;
 		setPriority(NORM_PRIORITY - 1);
@@ -101,8 +102,7 @@ class ServerConnection extends Thread {
 				if(serverToss > clientToss)
 				{
 					message = "Ping";
-					ball = new Ball("Red");
-					ball.SetMessage(message);
+					ball = new Ball(message);
 					isDecided = true;
 				}
 				else if(clientToss > serverToss)
@@ -160,13 +160,11 @@ class ServerConnection extends Thread {
 		}
 		catch(IOException e)
 		{
-			System.err.println(e);
+			System.err.println("IO Exception occured: " + e);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Interrupted Exception occured: " + e);
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Class Not Found Exception occured: " + e);
 		}
 	}
 }

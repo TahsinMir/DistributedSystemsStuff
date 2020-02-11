@@ -2,17 +2,15 @@ import java.io.Serializable;
 
 public class Ball extends Object implements Serializable
 {
-	String color;
 	String message;
 
-	public Ball(String color)
+	public Ball()
 	{
-		this.color = color;
+		
 	}
-	
-	public String GetColor()
+	public Ball(String message)
 	{
-		return color;
+		this.message = message;
 	}
 	public void SetMessage(String message)
 	{
