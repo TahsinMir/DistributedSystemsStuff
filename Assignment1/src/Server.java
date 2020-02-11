@@ -13,11 +13,11 @@ public class Server extends Thread
 	private ServerSocket s;
 	private InputStream in;
 	private OutputStream out;
-	private int number;
+	private Ball ball;
 	
 	public Server(int port)
 	{
-		number = 0;
+		ball = new Ball("Red");
 		try
 		{
 			s = new ServerSocket(port);
@@ -49,15 +49,15 @@ public class Server extends Thread
 			while(true)
 			{
 				ObjectOutputStream oout = new ObjectOutputStream(out);
-				oout.writeObject(++number);
+				oout.writeObject(ball);
 				oout.flush();
 				
 				sleep(1000);
 				
 				ObjectInputStream oin = new ObjectInputStream(in);
-				int rec = (int) oin.readObject();
-				System.out.println("received number in server " + rec);
-				number = rec;
+				Ball rec = (Ball) oin.readObject();
+				System.out.println("received number in server " + rec.GetColor());
+				ball = rec;
 			}
 		}
 		catch(IOException e)

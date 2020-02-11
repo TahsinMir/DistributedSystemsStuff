@@ -12,7 +12,7 @@ public class Client extends Thread
 	private int port;
 	private String host;
 	private Socket s;
-	private int number;
+	private Ball ball;
 	
 	public Client(int port, String host)
 	{
@@ -40,16 +40,15 @@ public class Client extends Thread
 				OutputStream out = s.getOutputStream();
 				ObjectInputStream oin = new ObjectInputStream(in);
 
-				int rec = (int) oin.readObject();
-				System.out.println("received number in client" + rec);
-				number = rec;
+				Ball rec = (Ball) oin.readObject();
+				System.out.println("received Ball in client: " + rec.GetColor());
+				ball = rec;
 				
 				sleep(1000);
 				
 				// now sending the number back after incrementing
-				number++;
 				ObjectOutputStream oout = new ObjectOutputStream(out);
-				oout.writeObject(number);
+				oout.writeObject(ball);
 				oout.flush();
 			}
 		}
