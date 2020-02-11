@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -7,14 +8,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class Server
+public class Server extends Thread
 {
 	private ServerSocket s;
 	private InputStream in;
 	private OutputStream out;
+	private int number;
 	
 	public Server(int port)
 	{
+		number = 0;
 		try
 		{
 			s = new ServerSocket(port);
@@ -28,7 +31,7 @@ public class Server
 			System.err.println(e);
 		}
 	}
-	public void RunServer()
+	public void run()
 	{
 		Socket newClient;
 		
@@ -41,16 +44,31 @@ public class Server
 			
 			System.out.println("Received connect from " + newClient.getInetAddress().getHostAddress() + ": " + newClient.getPort());
 			
-			System.out.println("Sending sample output to client");
 			
-			
-			ObjectOutputStream oout = new ObjectOutputStream(out);
-			oout.writeObject(new java.util.Date());
-			oout.flush();
+			System.out.println("Starting the play: ");
+			while(true)
+			{
+				ObjectOutputStream oout = new ObjectOutputStream(out);
+				oout.writeObject(++number);
+				oout.flush();
+				
+				sleep(1000);
+				
+				ObjectInputStream oin = new ObjectInputStream(in);
+				int rec = (int) oin.readObject();
+				System.out.println("received number in server " + rec);
+				number = rec;
+			}
 		}
 		catch(IOException e)
 		{
 			System.err.println(e);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }

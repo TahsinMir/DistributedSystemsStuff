@@ -1,15 +1,18 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Date;
 
-public class Client
+public class Client extends Thread
 {
 	private int port;
 	private String host;
 	private Socket s;
+	private int number;
 	
 	public Client(int port, String host)
 	{
@@ -27,15 +30,28 @@ public class Client
 		}
 	}
 	
-	public void ExecuteClient()
+	public void run()
 	{
 		try
 		{
-			InputStream in = s.getInputStream();
-			ObjectInputStream oin = new ObjectInputStream(in);
+			while(true)
+			{
+				InputStream in = s.getInputStream();
+				OutputStream out = s.getOutputStream();
+				ObjectInputStream oin = new ObjectInputStream(in);
 
-			Date date = (Date) oin.readObject();
-			System.out.println("Time on host is " + date);
+				int rec = (int) oin.readObject();
+				System.out.println("received number in client" + rec);
+				number = rec;
+				
+				sleep(1000);
+				
+				// now sending the number back after incrementing
+				number++;
+				ObjectOutputStream oout = new ObjectOutputStream(out);
+				oout.writeObject(number);
+				oout.flush();
+			}
 		}
 		catch (IOException e1)
 		{
@@ -44,6 +60,9 @@ public class Client
 		catch (ClassNotFoundException e2)
 		{
 			System.out.println(e2);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
