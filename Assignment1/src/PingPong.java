@@ -22,7 +22,7 @@ public class PingPong
 			System.out.println("server execution requested");
 			
 			Server server = new Server(Integer.parseInt(args[2]));
-			server.start();
+			server.RunServer();
 		}
 	}
 }
