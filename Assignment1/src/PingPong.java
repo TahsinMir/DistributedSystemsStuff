@@ -8,21 +8,22 @@ public class PingPong
 			System.err.println("Usage: java PingPong <client|server> <serverHost> <port#>");
 			System.exit(1);
 		}
-		System.out.println("begining of pingpong");
-		if(args[0] == "client" || args[0].equals("client"))
-		{
-			System.out.println("client execution requested");
-			
+		
+		else if(args[0] == "client" || args[0].equals("client"))
+		{	
 			Client client = new Client(Integer.parseInt(args[2]), args[1]);
-			client.start();
-			
+			client.start();	
 		}
-		if(args[0] == "server" || args[0].equals("server"))
+		else if(args[0] == "server" || args[0].equals("server"))
 		{
-			System.out.println("server execution requested");
-			
 			Server server = new Server(Integer.parseInt(args[2]));
 			server.RunServer();
+		}
+		else
+		{
+			System.err.println("Invalid arguments");
+			System.err.println("Usage: java PingPong <client|server> <serverHost> <port#>");
+			System.exit(1);
 		}
 	}
 }

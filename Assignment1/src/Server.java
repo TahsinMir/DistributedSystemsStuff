@@ -12,17 +12,17 @@ import java.util.Random;
 
 public class Server
 {
-	private ServerSocket ss;
-	private int noOfClients;
+	private ServerSocket serverSocket;
+	private int numOfClients;
 	
 	public Server(int port)
 	{
-		noOfClients = 0;
+		numOfClients = 0;
 		try
 		{
-			ss = new ServerSocket(port);
+			serverSocket = new ServerSocket(port);
 			System.out.println("Server is up and running on port " + port + " " + InetAddress.getLocalHost());
-			System.out.println("Server is waiting for clients to connect");
+			System.out.println("Server is waiting for clients to connect.....");
 		}
 		catch (UnknownHostException e)
 		{
@@ -39,16 +39,16 @@ public class Server
 		try
 		{
 			while (true) {
-				client = ss.accept();
+				client = serverSocket.accept();
 				System.out.println("Received connection from " + client.getInetAddress().getHostName() + " [ "
 						+ client.getInetAddress().getHostAddress() + " ] ");
-				new ServerConnection(client, noOfClients).start();
-				noOfClients++;
+				new ServerConnection(client, numOfClients+1).start();
+				numOfClients++;
 			}
 		}
 		catch (IOException e)
 		{
-			System.err.println(e);
+			System.err.println("IO Exception occured: " + e);
 		}
 	}
 }
@@ -56,18 +56,20 @@ public class Server
 class ServerConnection extends Thread {
 	private Socket newClient;
 	private int clientNo;
+	private int gameNo;
 	private InputStream in;
 	private OutputStream out;
 	private Ball ball;
 	private Random random;
 	private int clientToss;
 	private int serverToss;
-	private String message;
+	private String serverMessage;
 
 	ServerConnection(Socket client, int clientNo) throws SocketException 
 	{
 		this.newClient = client;
 		this.clientNo = clientNo;
+		this.gameNo = this.clientNo;
 		setPriority(NORM_PRIORITY - 1);
 		System.out.println("Created thread " + this.getName());
 	}
@@ -76,8 +78,7 @@ class ServerConnection extends Thread {
 	{
 		try
 		{
-			//
-			//sample coin toss
+			//coin toss
 			boolean isDecided = false;
 			random = new Random();
 			while(!isDecided)
@@ -85,7 +86,7 @@ class ServerConnection extends Thread {
 				in = newClient.getInputStream();
 				out = newClient.getOutputStream();
 				
-				//client goes first, and server receives first
+				//client goes first, and then goes the server, the one with the higher value wins
 				ObjectInputStream oin = new ObjectInputStream(in);
 				int res = (int) oin.readObject();
 				clientToss = res;
@@ -98,16 +99,16 @@ class ServerConnection extends Thread {
 				oout.flush();
 				
 				
-				System.out.println("Server coin toss: my number: " + serverToss + ", " + "Client " + clientNo + " number: " + clientToss);
+				System.out.println("Server coin toss: my number: " + serverToss + ", " + "Client#" + clientNo + " number: " + clientToss);
 				if(serverToss > clientToss)
 				{
-					message = "Ping";
-					ball = new Ball(message);
+					serverMessage = "Ping";
+					ball = new Ball(serverMessage);
 					isDecided = true;
 				}
 				else if(clientToss > serverToss)
 				{
-					message = "Pong";
+					serverMessage = "Pong";
 					isDecided = true;
 				}
 				else
@@ -116,44 +117,43 @@ class ServerConnection extends Thread {
 					sleep(1000);
 				}
 			}
-			//
-			//
 			
-			System.out.println("Starting the play: ");
+			System.out.println("The game is starting!");
 			while(true)
 			{
 				in = newClient.getInputStream();
 				out = newClient.getOutputStream();
 				
-				if(message == "Ping")
+				// if message is ping, that means server starts the game
+				if(serverMessage == "Ping")
 				{
 					ObjectOutputStream oout = new ObjectOutputStream(out);
-					ball.SetMessage(message);
+					ball.SetMessage(serverMessage);
 					oout.writeObject(ball);
 					oout.flush();
-					System.out.println("Server sent to Client" + clientNo + ": " + message);
+					System.out.println("Game#"+ gameNo + " Server sent to Client#" + clientNo + ": " + serverMessage);
 					
 					sleep(1000);
 					
 					ObjectInputStream oin = new ObjectInputStream(in);
 					Ball rec = (Ball) oin.readObject();
-					System.out.println("Server received from Client" + clientNo + ": " + rec.GetMessage());
+					System.out.println("Game#"+ gameNo + " Server received from Client#" + clientNo + ": " + rec.GetMessage());
 					ball = rec;
 				}
-				else if(message == "Pong")
+				else if(serverMessage == "Pong")
 				{
 					ObjectInputStream oin = new ObjectInputStream(in);
 					Ball rec = (Ball) oin.readObject();
-					System.out.println("Server received from Client" + clientNo + ": " + rec.GetMessage());
+					System.out.println("Game#"+ gameNo + " Server received from Client#" + clientNo + ": " + rec.GetMessage());
 					ball = rec;
 					
 					sleep(1000);
 					
 					ObjectOutputStream oout = new ObjectOutputStream(out);
-					ball.SetMessage(message);
+					ball.SetMessage(serverMessage);
 					oout.writeObject(ball);
 					oout.flush();
-					System.out.println("Server sent to Client" + clientNo + ": " + message);
+					System.out.println("Game#"+ gameNo + "Server sent to Client#" + clientNo + ": " + serverMessage);
 				}
 				
 			}
@@ -161,9 +161,15 @@ class ServerConnection extends Thread {
 		catch(IOException e)
 		{
 			System.err.println("IO Exception occured: " + e);
-		} catch (InterruptedException e) {
+			System.out.println("Game Over!");
+		}
+		catch (InterruptedException e)
+		{
 			System.err.println("Interrupted Exception occured: " + e);
-		} catch (ClassNotFoundException e) {
+			System.out.println("Game Over!");
+		}
+		catch (ClassNotFoundException e)
+		{
 			System.err.println("Class Not Found Exception occured: " + e);
 		}
 	}
