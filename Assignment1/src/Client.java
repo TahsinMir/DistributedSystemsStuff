@@ -83,6 +83,20 @@ public class Client extends Thread
 					sleep(1000);
 				}
 			}
+			
+			if(clientMessage == "Pong")
+			{
+				System.out.println("Server won the toss");
+				System.out.println("Therefore passing the ball to server to start the game...");
+				
+				in = server.getInputStream();
+				out = server.getOutputStream();
+				
+				ObjectOutputStream oout = new ObjectOutputStream(out);
+				ball = new Ball();
+				oout.writeObject(ball);
+				oout.flush();
+			}
 			while(true)
 			{
 				//If client won the toss, client makes the first move

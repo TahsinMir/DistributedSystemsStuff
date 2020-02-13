@@ -118,6 +118,21 @@ class ServerConnection extends Thread {
 				}
 			}
 			
+			if(serverMessage == "Ping")
+			{
+				System.out.println("Getting the ball from the Client: ");
+				sleep(500);
+				
+				in = newClient.getInputStream();
+				out = newClient.getOutputStream();
+				
+				ObjectInputStream oin = new ObjectInputStream(in);
+				Ball rec = (Ball) oin.readObject();
+				System.out.println("Ball received from Client#" + clientNo + ", test: " + ball.message);
+				ball = rec;
+			}
+			
+			
 			System.out.println("The game is starting!");
 			while(true)
 			{
@@ -153,7 +168,7 @@ class ServerConnection extends Thread {
 					ball.SetMessage(serverMessage);
 					oout.writeObject(ball);
 					oout.flush();
-					System.out.println("Game#"+ gameNo + "Server sent to Client#" + clientNo + ": " + serverMessage);
+					System.out.println("Game#"+ gameNo + " Server sent to Client#" + clientNo + ": " + serverMessage);
 				}
 				
 			}
