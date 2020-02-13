@@ -44,7 +44,7 @@ public class Server
 						+ client.getInetAddress().getHostAddress() + " ] ");
 				new ServerConnection(client, numOfClients+1).start();
 				//this is the variable that gives the games/ clients a number
-				//by design of this, this value is being sent to the threads through the ServerConnection constructor
+				//by design of this code, this value is being sent to the threads through the ServerConnection constructor
 				//After that the threads access its own game no, and not this value directly
 				numOfClients++;
 			}
