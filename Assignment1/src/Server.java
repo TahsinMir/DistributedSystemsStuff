@@ -43,6 +43,9 @@ public class Server
 				System.out.println("Received connection from " + client.getInetAddress().getHostName() + " [ "
 						+ client.getInetAddress().getHostAddress() + " ] ");
 				new ServerConnection(client, numOfClients+1).start();
+				//this is the variable that gives the games/ clients a number
+				//by design of this, this value is being sent to the threads through the ServerConnection constructor
+				//After that the threads access its own game no, and not this value directly
 				numOfClients++;
 			}
 		}
@@ -68,6 +71,7 @@ class ServerConnection extends Thread {
 	ServerConnection(Socket client, int clientNo) throws SocketException 
 	{
 		this.newClient = client;
+		// A particular thread of the server keeps track of its own game and client no
 		this.clientNo = clientNo;
 		this.gameNo = this.clientNo;
 		setPriority(NORM_PRIORITY - 1);
