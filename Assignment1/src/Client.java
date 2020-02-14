@@ -5,7 +5,6 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Date;
 import java.util.Random;
 
 public class Client extends Thread
@@ -74,7 +73,6 @@ public class Client extends Thread
 				else if(clientToss > serverToss)
 				{
 					clientMessage = "Ping";
-					ball = new Ball(clientMessage);
 					isDecided = true;
 				}
 				else
@@ -84,16 +82,16 @@ public class Client extends Thread
 				}
 			}
 			
+			//creating the ball
+			ball = new Ball();
 			if(clientMessage == "Pong")
 			{
 				System.out.println("Server won the toss");
 				System.out.println("Therefore passing the ball to server to start the game...");
 				
-				in = server.getInputStream();
 				out = server.getOutputStream();
 				
 				ObjectOutputStream oout = new ObjectOutputStream(out);
-				ball = new Ball();
 				oout.writeObject(ball);
 				oout.flush();
 			}
@@ -114,9 +112,9 @@ public class Client extends Thread
 					sleep(1000);
 					
 					ObjectInputStream oin = new ObjectInputStream(in);
-					Ball rec = (Ball) oin.readObject();
-					System.out.println("Client received: " + rec.GetMessage());
-					ball = rec;
+					Ball res = (Ball) oin.readObject();
+					System.out.println("Client received: " + res.GetMessage());
+					ball = res;
 				}
 				//If client lost the toss, client waits for the server to make the first move
 				else if(clientMessage == "Pong")
@@ -125,9 +123,9 @@ public class Client extends Thread
 					out = server.getOutputStream();
 					
 					ObjectInputStream oin = new ObjectInputStream(in);
-					Ball rec = (Ball) oin.readObject();
-					System.out.println("Client received: " + rec.GetMessage());
-					ball = rec;
+					Ball res = (Ball) oin.readObject();
+					System.out.println("Client received: " + res.GetMessage());
+					ball = res;
 					
 					sleep(1000);
 					

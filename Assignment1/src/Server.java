@@ -107,7 +107,6 @@ class ServerConnection extends Thread {
 				if(serverToss > clientToss)
 				{
 					serverMessage = "Ping";
-					ball = new Ball(serverMessage);
 					isDecided = true;
 				}
 				else if(clientToss > serverToss)
@@ -128,12 +127,11 @@ class ServerConnection extends Thread {
 				sleep(500);
 				
 				in = newClient.getInputStream();
-				out = newClient.getOutputStream();
 				
 				ObjectInputStream oin = new ObjectInputStream(in);
-				Ball rec = (Ball) oin.readObject();
-				System.out.println("Ball received from Client#" + clientNo + ", test: " + ball.message);
-				ball = rec;
+				Ball res = (Ball) oin.readObject();
+				System.out.println("Ball received from Client#" + clientNo);
+				ball = res;
 			}
 			
 			
@@ -155,16 +153,16 @@ class ServerConnection extends Thread {
 					sleep(1000);
 					
 					ObjectInputStream oin = new ObjectInputStream(in);
-					Ball rec = (Ball) oin.readObject();
-					System.out.println("Game#"+ gameNo + " Server received from Client#" + clientNo + ": " + rec.GetMessage());
-					ball = rec;
+					Ball res = (Ball) oin.readObject();
+					System.out.println("Game#"+ gameNo + " Server received from Client#" + clientNo + ": " + res.GetMessage());
+					ball = res;
 				}
 				else if(serverMessage == "Pong")
 				{
 					ObjectInputStream oin = new ObjectInputStream(in);
-					Ball rec = (Ball) oin.readObject();
-					System.out.println("Game#"+ gameNo + " Server received from Client#" + clientNo + ": " + rec.GetMessage());
-					ball = rec;
+					Ball res = (Ball) oin.readObject();
+					System.out.println("Game#"+ gameNo + " Server received from Client#" + clientNo + ": " + res.GetMessage());
+					ball = res;
 					
 					sleep(1000);
 					
