@@ -40,13 +40,13 @@ public class Server
 		{
 			while (true) {
 				client = serverSocket.accept();
-				System.out.println("Received connection from " + client.getInetAddress().getHostName() + " [ "
-						+ client.getInetAddress().getHostAddress() + " ] ");
-				new ServerConnection(client, numOfClients+1).start();
-				//this is the variable that gives the games/ clients a number
+				
+				//this is the variable that gives the games/clients a number
 				//by design of this code, this value is being sent to the threads through the ServerConnection constructor
 				//After that, the threads access its own game no, and not this value directly
 				numOfClients++;
+				System.out.println("Received connection from Client#" + numOfClients);
+				new ServerConnection(client, numOfClients).start();
 			}
 		}
 		catch (IOException e)
@@ -90,7 +90,7 @@ class ServerConnection extends Thread {
 				in = newClient.getInputStream();
 				out = newClient.getOutputStream();
 				
-				//client goes first, and then goes the server, the one with the higher value wins
+				//client goes first, and then goes the server, the one with the lower value wins
 				ObjectInputStream oin = new ObjectInputStream(in);
 				int res = (int) oin.readObject();
 				clientToss = res;
@@ -104,16 +104,20 @@ class ServerConnection extends Thread {
 				
 				
 				System.out.println("Server coin toss: my number: " + serverToss + ", " + "Client#" + clientNo + " number: " + clientToss);
-				if(serverToss > clientToss)
+				
+				//if server toss value is lower then server wins the toss
+				if(serverToss < clientToss)
 				{
 					serverMessage = "Ping";
 					isDecided = true;
 				}
-				else if(clientToss > serverToss)
+				//if client toss is lower, the client wins the toss
+				else if(clientToss < serverToss)
 				{
 					serverMessage = "Pong";
 					isDecided = true;
 				}
+				//otherwise we toss again
 				else
 				{
 					System.out.println("There is a tie, toss again!");
@@ -121,6 +125,9 @@ class ServerConnection extends Thread {
 				}
 			}
 			
+			System.out.println("Coin toss over. Server plays " + serverMessage);
+			
+			//if server won the toss it gets the ball from client first to start the game
 			if(serverMessage == "Ping")
 			{
 				System.out.println("Getting the ball from the Client: ");
@@ -135,7 +142,7 @@ class ServerConnection extends Thread {
 			}
 			
 			
-			System.out.println("The game is starting!");
+			System.out.println("The game is starting with Client#" + clientNo);
 			while(true)
 			{
 				in = newClient.getInputStream();

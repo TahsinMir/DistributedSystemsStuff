@@ -65,22 +65,27 @@ public class Client extends Thread
 				serverToss = res;
 				
 				System.out.println("Client coin toss: my number: " + clientToss + ", server number: " + serverToss);
-				if(serverToss > clientToss)
+				
+				//if server toss has lower value, then server wins the toss
+				if(serverToss < clientToss)
 				{
 					clientMessage = "Pong";
 					isDecided = true;
 				}
-				else if(clientToss > serverToss)
+				//if client toss has lower value, then client wins the toss
+				else if(clientToss < serverToss)
 				{
 					clientMessage = "Ping";
 					isDecided = true;
 				}
+				//otherwise we toss again
 				else
 				{
 					System.out.println("There is a tie, tossing again!");
 					sleep(1000);
 				}
 			}
+			System.out.println("Coin toss over. Client plays " + clientMessage);
 			
 			//creating the ball
 			ball = new Ball();
