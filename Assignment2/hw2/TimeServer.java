@@ -5,6 +5,8 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.net.InetAddress;
 
 /**
@@ -41,31 +43,43 @@ public class TimeServer
 	/**
 	 * The method that handles the clients, one at a time.
 	 */
-	public void serviceClients() {
-		Socket sock;
+	public void serviceClients()
+	{
+		Timer timer = new Timer();
+		//Socket sock;
+		TimerTask tt = new TimerTask() 
+		{  
+		    @Override  
+		    public void run()
+		    {  
+		    	try
+				{
+		    		Socket sock = s.accept();
+					out = sock.getOutputStream();
+					in = sock.getInputStream();
+					
+					// Note that client gets a temporary/transient port on it's side
+					// to talk to the server on its well known port
+					System.out.println(
+					        "Received connect from " + sock.getInetAddress().getHostAddress() + ": " + sock.getPort());
 
-		while (true) {
-			try {
-				sock = s.accept();
-				out = sock.getOutputStream();
-				in = sock.getInputStream();
-				
-				// Note that client gets a temporary/transient port on it's side
-				// to talk to the server on its well known port
-				System.out.println(
-				        "Received connect from " + sock.getInetAddress().getHostAddress() + ": " + sock.getPort());
+					ObjectOutputStream oout = new ObjectOutputStream(out);
+					oout.writeObject(new java.util.Date());
+					oout.flush();
 
-				ObjectOutputStream oout = new ObjectOutputStream(out);
-				oout.writeObject(new java.util.Date());
-				oout.flush();
-
-				/* Thread.sleep(4000); //4 secs */
-				sock.close();
-				/* } catch (InterruptedException e) { */
-				/* System.err.println(e); */
-			} catch (IOException e) {
-				System.err.println(e);
-			}
-		}
+					/* Thread.sleep(4000); //4 secs */
+					sock.close();
+					/* } catch (InterruptedException e) { */
+					/* System.err.println(e); */
+				}
+				catch (IOException e)
+				{
+					System.err.println(e);
+				} 
+		    };  
+		};
+		timer.scheduleAtFixedRate(tt,5000,5000);
+		
+		
 	}
 }
