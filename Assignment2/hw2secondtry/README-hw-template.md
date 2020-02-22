@@ -1,33 +1,40 @@
-# Homework Number
+# Homework 2
 
-* Author: Your Name
-* Class: CS455 or CS555 [Distributed Systems] Section #num
+* Author: Tahsin Imtiaz
+* Class: CS555 [Distributed Systems] Section #001
 
-You should complete the template below with your own words to finish this README.md file. This
-is a Markdown format file. If you are not familiar with it, here is a quick cheatsheet
-[https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet]
 
 ## Overview
 
-One line description of the homework and what parts you are attempting.
+This is the HW2 where we implement the single threaded TimeServer in such a way that it limits the number of connections to be no more than once in an interval of five seconds.
 
 ## Building the code
 
-This section should tell the user how to build your code (if the homework involves code).  If you
-are delivering a library or a jar file, where does it need to be installed or how do we use it?
+I have added the only changed file which is the TimeServer.java file. The rest is already in the repo. To build the client, run the following command:
+
+javac TimeClient.java
+
+To build the server, run the following command:
+
+javac TimeServer.java
+
+to run the server, run,
+
+java TimeServer
+
+And finally, to run a client, run:
+
+java TimeClient localhost 5005
 
 ## Testing
 
-This section should describe how you tested your code (if relevant).  For a homework, I don't
-expect much but this section should have some content.  List known bugs that you weren't able
-to fix (or ran out of time to fix).
-
+I have tested the program with three terminals where one terminal is used for the server and the other two is used for the clients.
+In the case of my program. If two clients request time at the same time, one get the time, the other one has to wait 5 seconds to get the time as per requirement of the hw.
+In other words, once a client is connected, the program limits the number of connections and does not accept any other connection for the next 5 seconds.
 
 ## Reflection
 
-What problems did you have? What did you have to research and learn on your own? What kinds of
-errors did you get? How did you fix them?  Is there anything that finally "clicked" for you in
-the process of working on this homework?
-
-This is the juicy part for me :-)
+The output mentioned in the homework statement has only a 2 second delay in the first 2 client executions. This should not happen. The right program should be able to
+accpet one connection for all the cases. In my case, if the server gets connection from the first client, it first accepts the connection, runs the timer and then waits.
+However, for the next connections, it first waits and then accepts the connection. This solves this minor synchronization problem.
 

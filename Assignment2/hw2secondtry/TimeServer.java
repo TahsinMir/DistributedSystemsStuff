@@ -19,11 +19,14 @@ import java.net.InetAddress;
 public class TimeServer
 {
 	private int port = 5005;
-	public static ServerSocket server;
-	public static Socket sock;
+	public ServerSocket server;
+	public Socket sock;
 	private Timer timer;
 	private TimerTask timerTask;
 	public static TimeServer timeServer;
+	private OutputStream out;
+	private boolean isFirstTime;
+	public static boolean isTimerExpired;
 
 
 	public static void main(String args[]) {
@@ -39,10 +42,10 @@ public class TimeServer
 			server = new ServerSocket(port);
 			System.out.println("TimeServer up and running on port " + port + " " + InetAddress.getLocalHost());
 			
+			//we need to handle the first time a bit differently
+			isFirstTime = true;
 			
-			timer = new Timer();
-			timerTask = new Execute();
-			timer.scheduleAtFixedRate(timerTask, 1000, 5000);
+			isTimerExpired = true;
 		}
 		catch (IOException e)
 		{
@@ -58,51 +61,72 @@ public class TimeServer
 	{
 		while(true)
 		{
-			synchronized(timeServer) 
-	        { 
-	            try {
-	            	timeServer.wait();
-				} catch (InterruptedException e) {
-					System.out.println("Interrupted Exception Occured" + e);
-				} 
-	        }
-		} 
+			try
+			{
+				//if this is not the first time, you first wait then accept connection
+				if(isFirstTime == false)
+				{
+					synchronized(TimeServer.timeServer) 
+		            { 
+						try {
+							isTimerExpired = true;
+			            	TimeServer.timeServer.wait();
+						}
+						catch (InterruptedException e)
+						{
+							System.out.println("Interrupted Exception Occured" + e);
+						} 
+		            }
+				}
+				
+				sock = server.accept();
+				out = sock.getOutputStream();
+				
+				//if this the first time, then you first accept the connection, run the timer and then you wait
+				if(isFirstTime == true)
+				{
+					isFirstTime = false;
+					synchronized(TimeServer.timeServer) 
+		            { 
+						timer = new Timer();
+						timerTask = new Execute();
+						timer.scheduleAtFixedRate(timerTask, 0, 5000);
+		            }
+				}
+				
+				// Note that client gets a temporary/transient port on it's side
+				// to talk to the server on its well known port
+				System.out.println(
+				        "Received connect from " + sock.getInetAddress().getHostAddress() + ": " + sock.getPort());
+
+				ObjectOutputStream oout = new ObjectOutputStream(out);
+				oout.writeObject(new java.util.Date());
+				oout.flush();
+
+				/* Thread.sleep(4000); //4 secs */
+				sock.close();
+				
+			}
+			catch (IOException e)
+			{
+				System.err.println(e);
+			}
+		}
 	}
 }
 
 class Execute extends TimerTask 
 { 
-	private OutputStream out;
-	
     public void run() 
     { 
-    	try
-		{
-			TimeServer.sock = TimeServer.server.accept();
-			out = TimeServer.sock.getOutputStream();
-			
-			// Note that client gets a temporary/transient port on it's side
-			// to talk to the server on its well known port
-			System.out.println(
-			        "Received connect from " + TimeServer.sock.getInetAddress().getHostAddress() + ": " + TimeServer.sock.getPort());
-
-			ObjectOutputStream oout = new ObjectOutputStream(out);
-			oout.writeObject(new java.util.Date());
-			oout.flush();
-
-			/* Thread.sleep(4000); //4 secs */
-			TimeServer.sock.close();
-			
-			synchronized(TimeServer.timeServer) 
-            { 
-				TimeServer.timeServer.notify(); 
-            } 
-			/* } catch (InterruptedException e) { */
-			/* System.err.println(e); */
-		}
-		catch (IOException e) {
-			System.err.println(e);
-		} 
+    	synchronized(TimeServer.timeServer) 
+        {
+    		if(TimeServer.isTimerExpired)
+    		{
+    			System.out.println("Timer expired!");
+    			TimeServer.isTimerExpired = false;
+    		}
+    		TimeServer.timeServer.notify();
+        }
     } 
-      
 } 
